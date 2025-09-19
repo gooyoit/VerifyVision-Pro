@@ -23,9 +23,7 @@
 ---
 
 <a name="chinese-documentation"></a>
-# 中文文档 🌏
-
-## 🔭 概述 <a name="概述"></a>
+## 🔭 项目概述 <a name="项目概述"></a>
 
 <div align="center">
 
@@ -1120,7 +1118,7 @@ VerifyVision-Pro在MIT许可证下发布。
 <a name="english-documentation"></a>
 # English Documentation 🌍
 
-## 🔭 Overview <a name="overview"></a>
+## 🔭 Project Overview <a name="projectoverview"></a>
 
 <div align="center">
 
