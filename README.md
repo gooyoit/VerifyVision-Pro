@@ -1116,7 +1116,6 @@ VerifyVision-Pro在MIT许可证下发布。
 ---
 
 <a name="english-documentation"></a>
-# English Documentation 🌍
 
 ## 🔭 Project Overview <a name="projectoverview"></a>
 
