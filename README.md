@@ -1094,3 +1094,6 @@ VerifyVision-Pro在MIT许可证下发布。
 - OpenCV (Apache 2.0许可证)
 - Bootstrap (MIT许可证)
 - 其他各种包，如requirements.txt中所列
+---
+
+⭐ 如果这个项目对您有帮助，请给我们一个 Star！

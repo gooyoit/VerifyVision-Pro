@@ -1096,3 +1096,6 @@ This project incorporates components from third-party open source projects:
 - OpenCV (Apache 2.0 License)
 - Bootstrap (MIT License)
 - Various other packages as listed in requirements.txt
+---
+
+⭐ If this project helps you, please give us a Star!
