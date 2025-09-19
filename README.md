@@ -46,6 +46,16 @@
 
 ## 🔭 概述 <a name="概述"></a>
 
+<div align="center">
+
+### 🖥️ 系统界面示例
+
+<img src="static/img/example.png" alt="VerifyVision-Pro 系统界面示例" style="width: 100%; max-width: 800px; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+*图：VerifyVision-Pro Web界面 - 显示图像伪造检测结果和详细分析*
+
+</div>
+
 VerifyVision-Pro是一个综合性的基于深度学习的图像伪造检测系统，能够高精度地识别各种图像篡改。系统集成了强大的数据处理流程、先进的深度学习模型和直观的Web界面，实现实时检测功能。
 
 ### 🌟 主要特点
@@ -1143,6 +1153,16 @@ VerifyVision-Pro在MIT许可证下发布。
 - [License](#license)
 
 ## 🔭 Overview <a name="overview"></a>
+
+<div align="center">
+
+### 🖥️ System Interface Example
+
+<img src="static/img/example.png" alt="VerifyVision-Pro System Interface Example" style="width: 100%; max-width: 800px; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+*Figure: VerifyVision-Pro Web Interface - Displaying Image Forgery Detection Results and Detailed Analysis*
+
+</div>
 
 VerifyVision-Pro is a comprehensive deep learning-based system designed to detect image forgeries with high accuracy. The system integrates robust data processing pipelines, state-of-the-art deep learning models, and an intuitive web interface for real-time detection.
 
