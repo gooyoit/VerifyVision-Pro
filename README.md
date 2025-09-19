@@ -2,7 +2,9 @@
 
 <div align="center">
 
-<img src="static/img/logo.png" alt="VerifyVision-Pro Logo" width="400" height="auto">
+<div style="width: 100%; max-width: 600px; margin: 0 auto;">
+  <img src="static/img/logo.png" alt="VerifyVision-Pro Logo" style="width: 100%; height: auto; display: block; margin: 0 auto;">
+</div>
 
 <br><br>
 
