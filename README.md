@@ -1,7 +1,11 @@
 # 🔍 VerifyVision-Pro 🖼️
 
 <div align="center">
-  
+
+<img src="static/img/logo.png" alt="VerifyVision-Pro Logo" width="400" height="auto">
+
+<br><br>
+
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.7+-blue.svg)
