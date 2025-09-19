@@ -13,6 +13,7 @@ from albumentations.pytorch import ToTensorV2
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.models import get_model
+from utils.logger import setup_logger, log_info
 
 # 创建Flask应用
 app = Flask(__name__, template_folder='../../templates', static_folder='../../static')
@@ -32,6 +33,7 @@ model = None
 device = None
 img_size = 224
 transform = None
+logger = setup_logger("WebApp", "INFO")
 
 
 def allowed_file(filename):
@@ -71,7 +73,7 @@ def load_model(model_path, model_name='efficientnet_b0'):
         ToTensorV2()
     ])
     
-    print(f"模型 '{model_name}' 已加载到 {device}")
+    log_info(f"模型 '{model_name}' 已加载到 {device}", logger)
 
 
 def predict_image(image_path):

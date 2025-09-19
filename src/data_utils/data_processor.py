@@ -7,6 +7,11 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 import shutil
 
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from utils.logger import setup_logger, log_info, log_warning, log_error
+
 
 def download_datasets():
     """
@@ -42,7 +47,8 @@ def preprocess_images(input_dir, output_dir, target_size=(256, 256), max_images=
         random.shuffle(image_files)
         image_files = image_files[:max_images]
     
-    print(f"正在处理 {len(image_files)} 张图像...")
+    logger = setup_logger("DataProcessor", "INFO")
+    log_info(f"正在处理 {len(image_files)} 张图像...", logger)
     
     def process_image(img_file):
         try:
@@ -65,7 +71,7 @@ def preprocess_images(input_dir, output_dir, target_size=(256, 256), max_images=
             
             return True
         except Exception as e:
-            print(f"处理图像 {img_file} 时出错: {str(e)}")
+            log_error(f"处理图像 {img_file} 时出错: {str(e)}", logger)
             return False
     
     # 使用线程池并行处理图像
@@ -73,7 +79,7 @@ def preprocess_images(input_dir, output_dir, target_size=(256, 256), max_images=
         results = list(tqdm(executor.map(process_image, image_files), total=len(image_files)))
     
     success_count = results.count(True)
-    print(f"成功处理 {success_count}/{len(image_files)} 张图像")
+    log_info(f"成功处理 {success_count}/{len(image_files)} 张图像", logger)
     return success_count
 
 
@@ -93,7 +99,7 @@ def create_fake_dataset(real_dir, fake_dir, method='copy', num_images=1000):
     real_images = [f for f in os.listdir(real_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
     if len(real_images) == 0:
-        print(f"在 {real_dir} 中没有找到图像")
+        log_warning(f"在 {real_dir} 中没有找到图像", logger)
         return 0
     
     # 确保不超过可用的真实图像数量
@@ -102,7 +108,8 @@ def create_fake_dataset(real_dir, fake_dir, method='copy', num_images=1000):
     # 随机选择图像
     selected_images = random.sample(real_images, num_images)
     
-    print(f"正在创建 {num_images} 张伪造图像，使用 {method} 方法...")
+    logger = setup_logger("DataProcessor", "INFO")
+    log_info(f"正在创建 {num_images} 张伪造图像，使用 {method} 方法...", logger)
     
     def process_image(img_file):
         try:
@@ -152,7 +159,7 @@ def create_fake_dataset(real_dir, fake_dir, method='copy', num_images=1000):
             
             return True
         except Exception as e:
-            print(f"处理图像 {img_file} 时出错: {str(e)}")
+            log_error(f"处理图像 {img_file} 时出错: {str(e)}", logger)
             return False
     
     # 使用线程池并行处理图像
@@ -160,7 +167,7 @@ def create_fake_dataset(real_dir, fake_dir, method='copy', num_images=1000):
         results = list(tqdm(executor.map(process_image, selected_images), total=len(selected_images)))
     
     success_count = results.count(True)
-    print(f"成功创建 {success_count}/{len(selected_images)} 张伪造图像")
+    log_info(f"成功创建 {success_count}/{len(selected_images)} 张伪造图像", logger)
     return success_count
 
 
@@ -207,17 +214,19 @@ def split_dataset(data_dir, output_dir, split_ratio=(0.7, 0.15, 0.15)):
     for img in test_images:
         shutil.copy(os.path.join(data_dir, img), os.path.join(test_dir, img))
     
-    print(f"数据集分割完成:")
-    print(f"训练集: {len(train_images)} 张图像")
-    print(f"验证集: {len(val_images)} 张图像")
-    print(f"测试集: {len(test_images)} 张图像")
+    logger = setup_logger("DataProcessor", "INFO")
+    log_info("数据集分割完成:", logger)
+    log_info(f"训练集: {len(train_images)} 张图像", logger)
+    log_info(f"验证集: {len(val_images)} 张图像", logger)
+    log_info(f"测试集: {len(test_images)} 张图像", logger)
 
 
 if __name__ == "__main__":
     # 示例用法
-    print("数据处理工具")
-    print("使用方法:")
-    print("1. 从 download_datasets() 函数获取数据集下载链接")
-    print("2. 使用 preprocess_images() 处理图像")
-    print("3. 使用 create_fake_dataset() 创建伪造图像")
-    print("4. 使用 split_dataset() 分割数据集") 
+    logger = setup_logger("DataProcessor", "INFO")
+    log_info("数据处理工具", logger)
+    log_info("使用方法:", logger)
+    log_info("1. 从 download_datasets() 函数获取数据集下载链接", logger)
+    log_info("2. 使用 preprocess_images() 处理图像", logger)
+    log_info("3. 使用 create_fake_dataset() 创建伪造图像", logger)
+    log_info("4. 使用 split_dataset() 分割数据集", logger) 

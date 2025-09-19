@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.models import get_model
 from data_utils.dataset import get_dataloaders
+from utils.logger import setup_logger, EvaluationProgressLogger
 
 
 def evaluate_model(args):
@@ -21,9 +22,19 @@ def evaluate_model(args):
     Args:
         args: 命令行参数
     """
+    # 设置日志记录器
+    logger = setup_logger(
+        name="Evaluation",
+        log_level="INFO",
+        log_file=os.path.join(args.results_dir, "evaluation.log"),
+        console_output=True
+    )
+    
+    # 创建评估进度记录器
+    progress_logger = EvaluationProgressLogger(logger)
+    
     # 设置设备
     device = torch.device('cuda' if torch.cuda.is_available() and not args.no_cuda else 'cpu')
-    print(f"使用设备: {device}")
     
     # 获取数据加载器
     dataloaders = get_dataloaders(
@@ -36,6 +47,9 @@ def evaluate_model(args):
     
     # 创建结果目录
     os.makedirs(args.results_dir, exist_ok=True)
+    
+    # 开始评估
+    progress_logger.start_evaluation(args.model, args.checkpoint, str(device))
     
     # 加载模型
     model = get_model(args.model, num_classes=args.num_classes)
@@ -79,7 +93,6 @@ def evaluate_model(args):
     
     # 计算准确率
     accuracy = (all_preds == all_labels).mean() * 100
-    print(f"测试损失: {test_loss:.4f}, 测试准确率: {accuracy:.2f}%")
     
     # 计算混淆矩阵
     cm = confusion_matrix(all_labels, all_preds)
@@ -109,8 +122,8 @@ def evaluate_model(args):
     
     # 生成分类报告
     report = classification_report(all_labels, all_preds, target_names=cm_plot_labels)
-    print("\n分类报告:")
-    print(report)
+    logger.info("分类报告:")
+    logger.info(f"\n{report}")
     
     # 保存分类报告
     with open(os.path.join(args.results_dir, 'classification_report.txt'), 'w') as f:
@@ -137,10 +150,8 @@ def evaluate_model(args):
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     f1_score = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
     
-    print(f"\n精确率: {precision:.4f}")
-    print(f"召回率: {recall:.4f}")
-    print(f"F1分数: {f1_score:.4f}")
-    print(f"AUC: {roc_auc:.4f}")
+    # 记录评估结果
+    progress_logger.log_evaluation_results(test_loss, accuracy, precision, recall, f1_score, roc_auc)
     
     # 保存结果摘要
     with open(os.path.join(args.results_dir, 'results_summary.txt'), 'w') as f:
@@ -153,7 +164,8 @@ def evaluate_model(args):
         f.write(f"F1分数: {f1_score:.4f}\n")
         f.write(f"AUC: {roc_auc:.4f}\n")
     
-    print(f"\n评估结果已保存到 {args.results_dir}")
+    # 完成评估
+    progress_logger.finish_evaluation(args.results_dir)
 
 
 def parse_args():

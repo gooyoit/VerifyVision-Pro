@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.models import get_model
 from data_utils.dataset import get_dataloaders
+from utils.logger import setup_logger, TrainingProgressLogger
 
 
 def train_model(args):
@@ -22,6 +23,17 @@ def train_model(args):
     Args:
         args: 命令行参数
     """
+    # 设置日志记录器
+    logger = setup_logger(
+        name="Training",
+        log_level="INFO",
+        log_file=os.path.join(args.save_dir, "training.log"),
+        console_output=True
+    )
+    
+    # 创建训练进度记录器
+    progress_logger = TrainingProgressLogger(logger)
+    
     # 设置随机种子以确保可重复性
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -30,7 +42,6 @@ def train_model(args):
     
     # 设置设备
     device = torch.device('cuda' if torch.cuda.is_available() and not args.no_cuda else 'cpu')
-    print(f"使用设备: {device}")
     
     # 创建保存目录
     os.makedirs(args.save_dir, exist_ok=True)
@@ -71,12 +82,15 @@ def train_model(args):
     # 设置TensorBoard
     writer = SummaryWriter(log_dir=os.path.join(args.save_dir, 'logs'))
     
+    # 开始训练
+    progress_logger.start_training(args.epochs, args.model, str(device))
+    
     # 训练循环
     best_val_acc = 0.0
     start_time = time.time()
     
     for epoch in range(args.epochs):
-        print(f"\n训练周期 {epoch+1}/{args.epochs}")
+        progress_logger.start_epoch(epoch, args.epochs)
         
         # 训练阶段
         model.train()
@@ -137,9 +151,9 @@ def train_model(args):
             else:
                 scheduler.step()
         
-        # 打印统计信息
-        print(f"训练损失: {train_loss:.4f}, 训练准确率: {train_acc:.2f}%")
-        print(f"验证损失: {val_loss:.4f}, 验证准确率: {val_acc:.2f}%")
+        # 记录轮次结果
+        current_lr = optimizer.param_groups[0]['lr']
+        progress_logger.log_epoch_results(epoch, train_loss, train_acc, val_loss, val_acc, current_lr)
         
         # 写入TensorBoard
         writer.add_scalar('Loss/train', train_loss, epoch)
@@ -158,7 +172,7 @@ def train_model(args):
                 'val_acc': val_acc,
                 'val_loss': val_loss,
             }, os.path.join(args.save_dir, 'best_model.pth'))
-            print(f"保存最佳模型，验证准确率: {val_acc:.2f}%")
+            progress_logger.log_best_model(val_acc)
         
         # 定期保存检查点
         if (epoch + 1) % args.save_interval == 0:
@@ -179,9 +193,8 @@ def train_model(args):
         'val_loss': val_loss,
     }, os.path.join(args.save_dir, 'final_model.pth'))
     
-    total_time = time.time() - start_time
-    print(f"\n训练完成！总时间: {total_time/60:.2f} 分钟")
-    print(f"最佳验证准确率: {best_val_acc:.2f}%")
+    # 完成训练
+    progress_logger.finish_training(best_val_acc)
     
     # 关闭TensorBoard写入器
     writer.close()
