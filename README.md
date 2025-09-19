@@ -25,25 +25,6 @@
 <a name="chinese-documentation"></a>
 # 中文文档 🌏
 
-## 📋 目录
-
-- [概述](#概述)
-- [项目结构](#项目结构)
-- [系统要求](#系统要求)
-- [安装](#安装)
-- [快速开始](#快速开始)
-- [数据准备](#数据准备)
-- [模型训练](#模型训练)
-- [模型评估](#模型评估)
-- [Web应用](#web应用)
-- [技术实现](#技术实现)
-- [高级用法](#高级用法)
-- [性能优化](#性能优化)
-- [常见问题解决](#常见问题解决)
-- [注意事项](#注意事项)
-- [参与贡献](#参与贡献)
-- [许可证](#许可证)
-
 ## 🔭 概述 <a name="概述"></a>
 
 <div align="center">
@@ -1138,25 +1119,6 @@ VerifyVision-Pro在MIT许可证下发布。
 
 <a name="english-documentation"></a>
 # English Documentation 🌍
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Project Structure](#project-structure)
-- [System Requirements](#system-requirements)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Data Preparation](#data-preparation)
-- [Model Training](#model-training)
-- [Model Evaluation](#model-evaluation)
-- [Web Application](#web-application)
-- [Technical Implementation](#technical-implementation)
-- [Advanced Usage](#advanced-usage)
-- [Performance Optimization](#performance-optimization)
-- [Troubleshooting](#troubleshooting)
-- [Notes & Best Practices](#notes)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## 🔭 Overview <a name="overview"></a>
 
