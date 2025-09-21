@@ -1098,5 +1098,6 @@ This project incorporates components from third-party open source projects:
 - Various other packages as listed in requirements.txt
 ---
 
-⭐ If this project helps you, please give us a Star!
 [![Star History](https://api.star-history.com/svg?repos=lintsinghua/VerifyVision-Pro&type=Date)](https://star-history.com/#lintsinghua/VerifyVision-Pro&Date)
+
+⭐ If this project helps you, please give us a Star!
