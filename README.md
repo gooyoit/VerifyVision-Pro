@@ -1097,3 +1097,4 @@ VerifyVision-Pro在MIT许可证下发布。
 ---
 
 ⭐ 如果这个项目对您有帮助，请给我们一个 Star！
+[![Star History](https://api.star-history.com/svg?repos=lintsinghua/VerifyVision-Pro&type=Date)](https://star-history.com/#lintsinghua/VerifyVision-Pro&Date)
