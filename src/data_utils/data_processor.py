@@ -12,7 +12,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.logger import setup_logger, log_info, log_warning, log_error
 
-
 def download_datasets():
     """
     此函数提供获取常用图像伪造检测数据集的方法和链接
@@ -213,7 +212,7 @@ def split_dataset(data_dir, output_dir, split_ratio=(0.7, 0.15, 0.15)):
     
     for img in test_images:
         shutil.copy(os.path.join(data_dir, img), os.path.join(test_dir, img))
-    
+
     logger = setup_logger("DataProcessor", "INFO")
     log_info("数据集分割完成:", logger)
     log_info(f"训练集: {len(train_images)} 张图像", logger)
@@ -230,3 +229,4 @@ if __name__ == "__main__":
     log_info("2. 使用 preprocess_images() 处理图像", logger)
     log_info("3. 使用 create_fake_dataset() 创建伪造图像", logger)
     log_info("4. 使用 split_dataset() 分割数据集", logger) 
+

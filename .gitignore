@@ -36,3 +36,8 @@ static/uploads/*
 # 系统文件
 .DS_Store
 Thumbs.db
+
+#训练文件
+/data/*
+/dataset/*
+/workspace/*

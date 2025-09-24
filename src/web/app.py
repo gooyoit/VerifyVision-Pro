@@ -1,19 +1,27 @@
+import logging
 import os
 import sys
 import torch
 import numpy as np
 from PIL import Image
 import torch.nn.functional as F
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, Response
 from werkzeug.utils import secure_filename
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from qwen_agent.utils.output_beautify import typewriter_print
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+from src.ai.qwen2vl_assistant_tooluse import init_agent_service
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.models import get_model
 from utils.logger import setup_logger, log_info
+from src.prediction.predictor import load_model, predict_image
 
 # 创建Flask应用
 app = Flask(__name__, template_folder='../../templates', static_folder='../../static')
@@ -28,84 +36,11 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB最大上传大小
 # 允许的文件扩展名
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-# 全局变量
-model = None
-device = None
-img_size = 224
-transform = None
 logger = setup_logger("WebApp", "INFO")
-
 
 def allowed_file(filename):
     """检查文件扩展名是否允许"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def load_model(model_path, model_name='efficientnet_b0'):
-    """
-    加载模型
-    
-    Args:
-        model_path (str): 模型路径
-        model_name (str): 模型名称
-        
-    Returns:
-        模型和设备
-    """
-    global model, device, transform
-    
-    # 设置设备
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    # 创建模型
-    model = get_model(model_name, num_classes=2)
-    
-    # 加载模型权重
-    checkpoint = torch.load(model_path, map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model = model.to(device)
-    model.eval()
-    
-    # 创建图像变换
-    transform = A.Compose([
-        A.Resize(img_size, img_size),
-        A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ToTensorV2()
-    ])
-    
-    log_info(f"模型 '{model_name}' 已加载到 {device}", logger)
-
-
-def predict_image(image_path):
-    """
-    预测图像
-    
-    Args:
-        image_path (str): 图像路径
-        
-    Returns:
-        预测结果和概率
-    """
-    # 加载并处理图像
-    img = Image.open(image_path).convert('RGB')
-    img_np = np.array(img)
-    
-    # 应用变换
-    img_tensor = transform(image=img_np)['image']
-    img_tensor = img_tensor.unsqueeze(0).to(device)
-    
-    # 预测
-    with torch.no_grad():
-        outputs = model(img_tensor)
-        probs = F.softmax(outputs, dim=1)[0]
-        pred_class = torch.argmax(probs).item()
-    
-    # 返回结果
-    return {
-        'class': '伪造' if pred_class == 1 else '真实',
-        'fake_prob': float(probs[1].item()) * 100,  # 伪造概率
-        'real_prob': float(probs[0].item()) * 100   # 真实概率
-    }
 
 
 @app.route('/')
@@ -178,6 +113,120 @@ def api_predict():
     
     return jsonify({'error': '不支持的文件类型，请上传JPG、JPEG或PNG格式的图像'}), 400
 
+@app.route('/api/ai/predict/stream', methods=['POST'])
+def api_ai_predict_stream():
+    """API端点用于AI预测流式响应"""
+    if 'file' not in request.files:
+        return jsonify({'error': '未选择文件'}), 400
+    
+    file = request.files['file']
+    query = request.form.get('query', '请分析这张图片是否为伪造图片，并详细说明理由')
+    
+    if file.filename == '':
+        return jsonify({'error': '未选择文件'}), 400
+    
+    if file and allowed_file(file.filename):
+        # 安全地获取文件名并保存文件
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        def generate():
+            try:
+                # 状态管理变量
+                phase = "init"  # init -> function_call -> function_result -> assistant_content
+                last_content = ""
+                
+                # 初始化服务
+                yield "data: 🚀 步骤1：正在初始化AI服务...\n\n"
+                
+                bot = init_agent_service()
+                yield "data: ✅ 步骤1完成：AI服务初始化成功\n\n"
+                
+                # 准备消息
+                messages = [{
+                    'role': 'user',
+                    'content': [
+                        {'image': os.path.abspath(filepath)},
+                        {'text': f'{query},filename:{filename},filepath:{filepath}'}
+                    ],
+                }]
+                
+                yield "data: 🤖 步骤2：正在启动AI Agent分析...\n\n"
+                
+                for response in bot.run(messages=messages):
+                    if isinstance(response, list) and len(response) > 0:
+                        latest = response[-1]
+                        
+                        # 阶段1：检测到function_call
+                        if phase == "init" and isinstance(latest, dict) and 'function_call' in latest:
+                            phase = "function_call"
+                            yield "data: ✅ 步骤2完成：AI Agent已启动\n\n"
+                            yield "data: 📁 步骤3：正在分析图像参数...\n\n"
+                        
+                        # 阶段2：function_call arguments完整
+                        elif phase == "function_call" and isinstance(latest, dict):
+                            if 'function_call' in latest:
+                                args = latest.get('function_call', {}).get('arguments', '')
+                                if args and args.strip():
+                                    try:
+                                        import json
+                                        args_dict = json.loads(args)
+                                        if args_dict.get('filepath') and args_dict.get('filename'):
+                                            yield "data: ✅ 步骤3完成：参数分析完成\n\n"
+                                            yield "data: 🔍 步骤4：正在执行图像检测...\n\n"
+                                            phase = "function_result"
+                                    except json.JSONDecodeError:
+                                        pass
+                            elif latest.get('role') == 'function':
+                                # 检测结果返回
+                                yield "data: ✅ 步骤4完成：图像检测完成\n\n"
+                                yield "data: 💭 步骤5：正在生成AI分析报告...\n\n"
+                                phase = "assistant_content"
+                        
+                        # 阶段3：assistant content 流式输出
+                        elif phase == "assistant_content" and isinstance(latest, dict) and latest.get('role') == 'assistant':
+                            current_content = latest.get('content', '')
+                            if current_content:
+                                # 计算增量内容
+                                if current_content != last_content:
+                                    if last_content and current_content.startswith(last_content):
+                                        # 发送增量部分
+                                        new_content = current_content[len(last_content):]
+                                        if new_content:
+                                            yield f"data: INCREMENT:{new_content}\n\n"
+                                    else:
+                                        # 发送完整内容（第一次或完全不同）
+                                        yield f"data: FULL:{current_content}\n\n"
+                                    
+                                    last_content = current_content
+                        
+                        # 检测assistant role开始（从function_result阶段切换）
+                        elif phase == "function_result" and isinstance(latest, dict) and latest.get('role') == 'assistant':
+                            current_content = latest.get('content', '')
+                            if current_content:
+                                yield "data: ✅ 步骤4完成：图像检测完成\n\n"
+                                yield "data: 💭 步骤5：正在生成AI分析报告...\n\n"
+                                phase = "assistant_content"
+                                # 发送第一部分content
+                                yield f"data: FULL:{current_content}\n\n"
+                                last_content = current_content
+                
+                yield "data: ✅ 步骤5完成：AI分析报告生成完成\n\n"
+                yield "data: [DONE]\n\n"
+                
+            except Exception as e:
+                logging.error(f"Error in generate: {e}", exc_info=True)
+                yield f"data: ❌ 错误：{str(e)}\n\n"
+                yield "data: [DONE]\n\n"
+        
+        return Response(generate(), mimetype='text/plain', headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        })
+    
+    return jsonify({'error': '不支持的文件类型，请上传JPG、JPEG或PNG格式的图像'}), 400
 
 def main():
     """主函数"""
