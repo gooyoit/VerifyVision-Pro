@@ -1,0 +1,948 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 图像伪造检测系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- 欢迎卡片 -->
+        <div class="card welcome-card mb-4">
+            <div class="card-body text-center py-5">
+                <div class="icon-container mb-4">
+                    <i class="bi bi-shield-check display-1 text-primary"></i>
+                </div>
+                <h1 class="display-5 fw-bold mb-3">图像伪造检测系统</h1>
+                <p class="lead mb-4">
+                    使用深度学习技术帮助您检测图像是否经过篡改或人工合成
+                </p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="#detect-section" class="btn btn-primary btn-lg px-4 gap-3">
+                        <i class="bi bi-image me-2"></i>开始检测
+                    </a>
+                    <a href="{{ url_for('about') }}" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-info-circle me-2"></i>了解更多
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 检测卡片 -->
+        <div id="detect-section" class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="text-center mb-0">
+                    <i class="bi bi-search me-2"></i>图像检测
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <p class="lead">
+                        上传图片以检测图像是否被伪造或篡改。系统将分析图像并给出真实或伪造的判断结果。
+                    </p>
+                </div>
+                
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="uploadForm" class="upload-form">
+                    <div class="upload-container mb-4">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content text-center">
+                                <i class="bi bi-cloud-arrow-up-fill display-4 mb-3 text-primary"></i>
+                                <h5>点击或拖放图像到此处</h5>
+                                <p class="text-muted">支持JPG、JPEG和PNG格式，最大16MB</p>
+                            </div>
+                            <input type="file" class="form-control visually-hidden" id="file" name="file" accept=".jpg,.jpeg,.png" required>
+                        </div>
+                    </div>
+                    
+                    <div class="image-preview-container text-center mt-4 d-none" id="imagePreviewContainer">
+                        <!-- 由JavaScript填充内容 -->
+                    </div>
+                    
+                    <div class="d-grid gap-2 col-md-6 mx-auto mt-4">
+                        <button class="btn btn-primary btn-lg" type="submit" id="uploadBtn">
+                            <span id="uploadBtnText">上传并检测</span>
+                            <span id="uploadSpinner" class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- AI检测卡片 -->
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h2 class="text-center mb-0">
+                    <i class="bi bi-robot me-2"></i>AI智能检测
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <p class="lead">
+                        上传图片并输入您的问题，AI将对图像进行详细分析并提供实时流式回答。
+                    </p>
+                </div>
+                
+                <form id="aiDetectionForm" class="ai-detection-form">
+                    <!-- 图片上传区域 -->
+                    <div class="upload-container mb-4">
+                        <div class="upload-area" id="aiUploadArea">
+                            <div class="upload-content text-center">
+                                <i class="bi bi-cloud-arrow-up-fill display-4 mb-3 text-success"></i>
+                                <h5>点击或拖放图像到此处</h5>
+                                <p class="text-muted">支持JPG、JPEG和PNG格式，最大16MB</p>
+                            </div>
+                            <input type="file" class="form-control visually-hidden" id="aiFile" name="file" accept=".jpg,.jpeg,.png" required>
+                        </div>
+                    </div>
+                    
+                    <div class="image-preview-container text-center mt-4 d-none" id="aiImagePreviewContainer">
+                        <!-- 由JavaScript填充内容 -->
+                    </div>
+                    
+                    <!-- 问题输入区域 -->
+                    <div class="mb-4">
+                        <label for="queryInput" class="form-label fw-bold">
+                            <i class="bi bi-question-circle me-2"></i>您想了解什么？
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="queryInput" 
+                            name="query" 
+                            rows="3" 
+                            placeholder="请输入您想要询问的问题，例如：这张图片是否被篡改过？有哪些可疑的地方？"
+                            required>请分析这张图片是否为伪造图片，并详细说明理由</textarea>
+                        <div class="form-text">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            提示：您可以询问图像真伪、篡改痕迹、技术细节等任何相关问题
+                        </div>
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <button class="btn btn-success btn-lg" type="submit" id="aiDetectionBtn">
+                            <span id="aiDetectionBtnText">
+                                <i class="bi bi-send me-2"></i>开始AI分析
+                            </span>
+                            <span id="aiDetectionSpinner" class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- AI响应结果区域 -->
+                <div class="mt-4 d-none" id="aiResponseContainer">
+                    <div class="card border-success">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-robot text-success me-2"></i>AI分析结果
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="aiResponseContent" class="ai-response-content">
+                                <!-- AI响应内容将在这里实时显示 -->
+                            </div>
+                            <div id="aiResponseStatus" class="mt-2 text-muted">
+                                <i class="bi bi-hourglass-split"></i> 正在分析中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 功能特点卡片 -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>使用说明
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row features-container">
+                    <div class="col-md-6 mb-4">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="bi bi-upload"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>上传图像</h5>
+                                <p>点击上传区域选择要检测的图像文件</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="bi bi-gpu-card"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>AI分析</h5>
+                                <p>深度学习模型自动分析图像特征</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>检测结果</h5>
+                                <p>获取图像真伪的详细分析结果</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-lock"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>隐私保护</h5>
+                                <p>上传的图像仅用于检测，不会存储</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>注意：</strong> 系统基于深度学习模型进行检测，可能存在一定的误判率。检测结果仅供参考，最终判断请结合专业知识和其他证据。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 首页特定样式 */
+    .welcome-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9f2ff 100%);
+        border-radius: 20px;
+    }
+    
+    .icon-container {
+        background-color: rgba(63, 106, 216, 0.1);
+        width: 120px;
+        height: 120px;
+        border-radius: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: block;
+    }
+    
+    .upload-area:hover, .upload-area.dragover {
+        border-color: var(--primary-color);
+        background-color: rgba(63, 106, 216, 0.05);
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+        height: 100%;
+    }
+    
+    .feature-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        background: var(--primary-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .feature-content {
+        flex-grow: 1;
+    }
+    
+    .feature-content h5 {
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+    
+    .feature-content p {
+        margin-bottom: 0;
+        color: var(--secondary-color);
+    }
+    
+    /* AI检测模块样式 */
+    .ai-detection-form .upload-area {
+        border: 2px dashed #28a745;
+        border-radius: 12px;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: block;
+    }
+    
+    .ai-detection-form .upload-area:hover, 
+    .ai-detection-form .upload-area.dragover {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+    
+    .ai-detection-form .upload-area.file-selected {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.1);
+        border-style: solid;
+    }
+    
+    .ai-response-content {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 100px;
+        max-height: 500px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        font-family: system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+        border: 1px solid #e9ecef;
+    }
+    
+    .ai-response-content.streaming {
+        animation: pulse 2s infinite;
+    }
+    
+    .step-content {
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+    }
+    
+    .step-header {
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 0.25rem;
+    }
+    
+    .step-content.function-call {
+        background-color: rgba(0, 123, 255, 0.1);
+        border-left: 3px solid #007bff;
+        padding-left: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .step-content.function-result {
+        background-color: rgba(40, 167, 69, 0.1);
+        border-left: 3px solid #28a745;
+        padding-left: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .step-content.ai-analysis {
+        background-color: rgba(108, 117, 125, 0.1);
+        border-left: 3px solid #6c757d;
+        padding-left: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    @keyframes pulse {
+        0% { border-color: #28a745; }
+        50% { border-color: #20c997; }
+        100% { border-color: #28a745; }
+    }
+    
+    #queryInput:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .typing-indicator {
+        display: inline-block;
+        animation: typing 1.4s infinite;
+    }
+    
+    @keyframes typing {
+        0%, 60%, 100% { opacity: 1; }
+        30% { opacity: 0.4; }
+    }
+    
+    /* 新增：步骤信息样式 */
+    .step-info {
+        font-weight: 500;
+        color: #0d6efd;
+        background-color: #f8f9fa !important;
+        border-radius: 8px;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    #ai-content-area {
+        background-color: #ffffff !important;
+        border: 1px solid #dee2e6 !important;
+        min-height: 100px;
+        max-height: 500px;
+        overflow-y: auto;
+        animation: fadeIn 0.5s ease-in;
+        color: #2c3e50 !important;  /* 重置文本颜色为正常黑色 */
+    }
+    
+    /* Markdown内容样式 */
+    .markdown-content h1, .markdown-content h2, .markdown-content h3, 
+    .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+        color: #2c3e50;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    
+    .markdown-content h1 { 
+        font-size: 1.8rem; 
+        border-bottom: 2px solid #3498db; 
+        padding-bottom: 0.5rem; 
+        color: #2980b9;
+    }
+    .markdown-content h2 { 
+        font-size: 1.6rem; 
+        color: #e74c3c; 
+        border-bottom: 1px solid #ecf0f1;
+        padding-bottom: 0.3rem;
+    }
+    .markdown-content h3 { 
+        font-size: 1.4rem; 
+        color: #27ae60; 
+        margin-top: 2rem;
+    }
+    .markdown-content h4 { 
+        font-size: 1.2rem; 
+        color: #f39c12; 
+        margin-top: 1.8rem;
+        font-weight: 700;
+    }
+    .markdown-content h5 { 
+        font-size: 1.1rem; 
+        color: #9b59b6; 
+        margin-top: 1.5rem;
+    }
+    .markdown-content h6 { 
+        font-size: 1rem; 
+        color: #34495e; 
+        margin-top: 1.2rem;
+    }
+    
+    /* 特殊处理：标题中的粗体文本 */
+    .markdown-content h1 strong, .markdown-content h2 strong, 
+    .markdown-content h3 strong, .markdown-content h4 strong,
+    .markdown-content h5 strong, .markdown-content h6 strong {
+        color: inherit;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    
+    /* 四级标题特殊样式（对应 #### **标题** 格式）*/
+    .markdown-content h4 {
+        background: linear-gradient(90deg, #fff3cd, #ffffff);
+        border-left: 4px solid #f39c12;
+        padding: 0.8rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 1.5rem 0;
+    }
+    
+    .markdown-content h4 strong {
+        color: #e67e22;
+        font-size: 1.25rem;
+    }
+    
+    .markdown-content p {
+        margin-bottom: 1rem;
+        line-height: 1.7;
+        color: #2c3e50;
+    }
+    
+    .markdown-content ul, .markdown-content ol {
+        padding-left: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .markdown-content li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+    
+    /* 列表项中的粗体文本特殊处理 */
+    .markdown-content li strong {
+        color: #c0392b;
+        font-weight: 700;
+        background-color: rgba(231, 76, 60, 0.1);
+        padding: 0.1rem 0.3rem;
+        border-radius: 0.25rem;
+    }
+    
+    .markdown-content strong {
+        color: #e74c3c;
+        font-weight: 600;
+        background-color: rgba(231, 76, 60, 0.05);
+        padding: 0.1rem 0.2rem;
+        border-radius: 0.2rem;
+    }
+    
+    .markdown-content em {
+        color: #8e44ad;
+        font-style: italic;
+    }
+    
+    .markdown-content code {
+        background-color: #f8f9fa;
+        color: #e83e8c;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+    
+    .markdown-content pre {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+    
+    .markdown-content pre code {
+        background: none;
+        color: #495057;
+        padding: 0;
+    }
+    
+    .markdown-content blockquote {
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+        padding: 1rem 1.5rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #6c757d;
+    }
+    
+    .markdown-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        background-color: #ffffff;
+    }
+    
+    .markdown-content th, .markdown-content td {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+        text-align: left;
+    }
+    
+    .markdown-content th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .markdown-content tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    
+    .markdown-content hr {
+        border: none;
+        border-top: 3px solid #3498db;
+        margin: 2.5rem 0;
+        background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+        height: 3px;
+        border-radius: 2px;
+    }
+    
+    /* 分隔线后紧跟标题的特殊处理 */
+    .markdown-content hr + h1,
+    .markdown-content hr + h2,
+    .markdown-content hr + h3,
+    .markdown-content hr + h4,
+    .markdown-content hr + h5,
+    .markdown-content hr + h6 {
+        margin-top: 1rem;
+    }
+    
+    /* 增强段落间距和分隔感 */
+    .markdown-content > *:first-child {
+        margin-top: 0;
+    }
+    
+    .markdown-content > *:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* 处理换行符显示 */
+    .markdown-content {
+        white-space: normal;
+    }
+    
+    .markdown-content br {
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 添加Markdown解析库 -->
+<script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
+<script>
+    // 配置Markdown解析器
+    marked.setOptions({
+        breaks: true,        // 支持换行符转换为<br>
+        gfm: true,          // 启用GitHub风格的Markdown
+        sanitize: false,     // 允许HTML标签
+        smartLists: true,    // 智能列表处理
+        smartypants: false,  // 禁用智能标点符号转换
+        mangle: false,       // 禁用mangle避免警告
+        headerIds: false     // 禁用headerIds避免警告
+    });
+    
+    // 自定义渲染函数来处理特殊格式
+    function renderMarkdownContent(content) {
+        // 简化处理，只做基本的Markdown解析
+        return marked.parse(content);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 拖放功能
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('file');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        
+        if (uploadArea && fileInput) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('dragover');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if(files.length) {
+                    fileInput.files = files;
+                    // 触发change事件，使文件预览功能工作
+                    const event = new Event('change', { bubbles: true });
+                    fileInput.dispatchEvent(event);
+                }
+            }
+            
+            // 点击上传区域时触发文件选择
+            uploadArea.addEventListener('click', function(e) {
+                // 只有当预览区域隐藏或点击的不是预览区域内的元素时才触发
+                const isPreviewShown = !imagePreviewContainer.classList.contains('d-none');
+                
+                if (!isPreviewShown || !imagePreviewContainer.contains(e.target)) {
+                    fileInput.click();
+                }
+            });
+        }
+        
+        // AI检测功能
+        const aiUploadArea = document.getElementById('aiUploadArea');
+        const aiFileInput = document.getElementById('aiFile');
+        const aiImagePreviewContainer = document.getElementById('aiImagePreviewContainer');
+        const aiDetectionForm = document.getElementById('aiDetectionForm');
+        const aiResponseContainer = document.getElementById('aiResponseContainer');
+        const aiResponseContent = document.getElementById('aiResponseContent');
+        const aiResponseStatus = document.getElementById('aiResponseStatus');
+        const aiDetectionBtn = document.getElementById('aiDetectionBtn');
+        const aiDetectionBtnText = document.getElementById('aiDetectionBtnText');
+        const aiDetectionSpinner = document.getElementById('aiDetectionSpinner');
+        
+        if (aiUploadArea && aiFileInput) {
+            // AI上传区域拖放功能
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                aiUploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                aiUploadArea.addEventListener(eventName, () => {
+                    aiUploadArea.classList.add('dragover');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                aiUploadArea.addEventListener(eventName, () => {
+                    aiUploadArea.classList.remove('dragover');
+                }, false);
+            });
+            
+            aiUploadArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if(files.length) {
+                    aiFileInput.files = files;
+                    const event = new Event('change', { bubbles: true });
+                    aiFileInput.dispatchEvent(event);
+                }
+            }, false);
+            
+            // 点击上传区域触发文件选择
+            aiUploadArea.addEventListener('click', function(e) {
+                const isPreviewShown = !aiImagePreviewContainer.classList.contains('d-none');
+                if (!isPreviewShown || !aiImagePreviewContainer.contains(e.target)) {
+                    aiFileInput.click();
+                }
+            });
+            
+            // 文件选择预览
+            aiFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    // 添加加载指示器
+                    aiImagePreviewContainer.innerHTML = '<div class="spinner-border text-success" role="status"><span class="visually-hidden">加载中...</span></div>';
+                    aiImagePreviewContainer.classList.remove('d-none');
+                    
+                    reader.onload = function(e) {
+                        // 创建图像对象以获取尺寸
+                        const img = new Image();
+                        img.onload = function() {
+                            // 更新预览容器内容
+                            aiImagePreviewContainer.innerHTML = `
+                                <h5>图像预览</h5>
+                                <div class="image-details mb-2">
+                                    <span class="badge bg-info me-2">${file.type.split('/')[1].toUpperCase()}</span>
+                                    <span class="badge bg-secondary me-2">${Math.round(file.size / 1024)} KB</span>
+                                    <span class="badge bg-dark">${this.width} × ${this.height}</span>
+                                </div>
+                                <div class="image-preview-wrapper">
+                                    <img id="aiImagePreview" class="img-fluid img-thumbnail mt-2" style="max-height: 300px;" src="${e.target.result}" alt="图像预览">
+                                </div>
+                                <div class="preview-actions mt-3 d-flex justify-content-between align-items-center">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-reset-upload" onclick="clearAiPreview()">
+                                        <i class="bi bi-x-circle me-1"></i>重新选择
+                                    </button>
+                                    <div class="preview-info text-muted">
+                                        <small><i class="bi bi-info-circle me-1"></i>可输入问题后点击"开始AI分析"按钮</small>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // 切换上传区域样式
+                            aiUploadArea.classList.add('file-selected');
+                            
+                            // 添加淡入动画效果
+                            const newImage = aiImagePreviewContainer.querySelector('#aiImagePreview');
+                            if (newImage) {
+                                newImage.style.opacity = '0';
+                                setTimeout(() => {
+                                    newImage.style.transition = 'opacity 0.5s ease';
+                                    newImage.style.opacity = '1';
+                                }, 50);
+                            }
+                        };
+                        img.src = e.target.result;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // AI检测表单提交
+        if (aiDetectionForm) {
+            aiDetectionForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(aiDetectionForm);
+                
+                if (!formData.get('file') || !formData.get('query').trim()) {
+                    alert('请上传图片并输入问题！');
+                    return;
+                }
+                
+                // 显示加载状态
+                aiDetectionBtn.disabled = true;
+                aiDetectionBtnText.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>正在分析...';
+                aiDetectionSpinner.classList.remove('d-none');
+                
+                // 显示响应容器并清空内容
+                aiResponseContainer.classList.remove('d-none');
+                aiResponseContent.innerHTML = '';
+                aiResponseContent.classList.add('streaming');
+                aiResponseStatus.innerHTML = '<i class="bi bi-hourglass-split"></i> AI正在分析图像<span class="typing-indicator">...</span>';
+                
+                // 状态管理
+                let currentPhase = 'progress'; // progress -> content
+                let contentBuffer = '';
+                
+                try {
+                    const response = await fetch('/api/ai/predict/stream', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('网络请求失败');
+                    }
+                    
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value, { stream: true });
+                        const lines = chunk.split('\n');
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6);
+                                
+                                if (data === '[DONE]') {
+                                    // 流结束
+                                    aiResponseContent.classList.remove('streaming');
+                                    aiResponseStatus.innerHTML = '<i class="bi bi-check-circle text-success"></i> 分析完成';
+                                    break;
+                                } else if (data.trim()) {
+                                    // 检测是否为步骤进度信息
+                                    if (data.includes('步骤') && (data.includes('🚀') || data.includes('✅') || data.includes('🤖') || data.includes('📁') || data.includes('🔍') || data.includes('💭'))) {
+                                        // 这是步骤信息，直接添加到内容区域
+                                        const stepDiv = document.createElement('div');
+                                        stepDiv.className = 'step-info mb-2 p-2 bg-light border-start border-primary border-3';
+                                        stepDiv.innerHTML = data;
+                                        aiResponseContent.appendChild(stepDiv);
+                                        
+                                        // 如果是"步骤5：正在生成AI分析报告"，切换到内容模式
+                                        if (data.includes('💭 步骤5：正在生成AI分析报告')) {
+                                            currentPhase = 'content';
+                                            // 创建内容显示区域
+                                            const contentDiv = document.createElement('div');
+                                            contentDiv.id = 'ai-content-area';
+                                            contentDiv.className = 'mt-3 p-3 bg-white border rounded markdown-content';
+                                            contentDiv.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+                                            contentDiv.style.lineHeight = '1.6';
+                                            aiResponseContent.appendChild(contentDiv);
+                                        }
+                                    } else if (data.startsWith('FULL:')) {
+                                        // 完整内容替换
+                                        const content = data.substring(5); // 移除 'FULL:' 前缀
+                                        const contentArea = document.getElementById('ai-content-area');
+                                        if (contentArea) {
+                                            contentBuffer = content;
+                                            contentArea.innerHTML = renderMarkdownContent(contentBuffer);
+                                        }
+                                    } else if (data.startsWith('INCREMENT:')) {
+                                        // 增量内容追加
+                                        const newContent = data.substring(10); // 移除 'INCREMENT:' 前缀
+                                        const contentArea = document.getElementById('ai-content-area');
+                                        if (contentArea) {
+                                            contentBuffer += newContent;
+                                            contentArea.innerHTML = renderMarkdownContent(contentBuffer);
+                                        }
+                                    } else if (currentPhase === 'content') {
+                                        // 兼容旧格式：这是AI分析内容，追加到内容区域
+                                        const contentArea = document.getElementById('ai-content-area');
+                                        if (contentArea) {
+                                            contentBuffer += data;
+                                            contentArea.innerHTML = renderMarkdownContent(contentBuffer);
+                                        }
+                                    }
+                                    
+                                    // 自动滚动到底部
+                                    aiResponseContent.scrollTop = aiResponseContent.scrollHeight;
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('AI检测请求失败:', error);
+                    aiResponseContent.classList.remove('streaming');
+                    aiResponseContent.innerHTML = '<div class="text-danger"><i class="bi bi-exclamation-triangle"></i> 请求失败，请稍后重试</div>';
+                    aiResponseStatus.innerHTML = '<i class="bi bi-x-circle text-danger"></i> 分析失败';
+                } finally {
+                    // 恢复按钮状态
+                    aiDetectionBtn.disabled = false;
+                    aiDetectionBtnText.innerHTML = '<i class="bi bi-send me-2"></i>开始AI分析';
+                    aiDetectionSpinner.classList.add('d-none');
+                }
+            });
+        }
+        
+        // 特性项动画
+        const features = document.querySelectorAll('.feature-item');
+        features.forEach((feature, index) => {
+            feature.style.setProperty('--child-index', index);
+            feature.classList.add('animate-ready');
+            
+            // 设置交错动画时间
+            setTimeout(() => {
+                feature.classList.add('animate-in');
+            }, 100 * index);
+        });
+    });
+    
+    // 清除AI预览图片的全局函数
+    function clearAiPreview() {
+        const aiImagePreviewContainer = document.getElementById('aiImagePreviewContainer');
+        const aiFileInput = document.getElementById('aiFile');
+        const aiUploadArea = document.getElementById('aiUploadArea');
+        
+        if (aiImagePreviewContainer) {
+            aiImagePreviewContainer.classList.add('d-none');
+            aiImagePreviewContainer.innerHTML = '';
+        }
+        
+        if (aiFileInput) {
+            aiFileInput.value = '';
+        }
+        
+        // 移除上传区域选中状态
+        if (aiUploadArea) {
+            aiUploadArea.classList.remove('file-selected');
+        }
+    }
+    
+    // 图像预览功能已经由main.js中的函数增强处理
+</script>
+{% endblock %} 
