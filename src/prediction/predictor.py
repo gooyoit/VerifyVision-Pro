@@ -11,6 +11,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.models.models import get_model
+from src.utils.logger import setup_logger, log_info, log_error
 
 class ImagePredictor:
     def __init__(self):
@@ -18,6 +19,7 @@ class ImagePredictor:
         self.device = None
         self.img_size = 224
         self.transform = None
+        self.logger = setup_logger("ImagePredictor", "INFO")
     
     def load_model(self, model_path, model_name='efficientnet_b0'):
         """
@@ -46,7 +48,7 @@ class ImagePredictor:
             ToTensorV2()
         ])
         
-        print(f"模型 '{model_name}' 已加载到 {self.device}")
+        log_info(f"模型 '{model_name}' 已加载到 {self.device}", self.logger)
     
     def predict_image(self, image_path):
         """
@@ -59,28 +61,35 @@ class ImagePredictor:
             预测结果和概率
         """
         if self.model is None:
+            log_error("模型尚未加载，请先调用 load_model", self.logger)
             raise ValueError("模型尚未加载，请先调用 load_model")
         
-        # 加载并处理图像
-        img = Image.open(image_path).convert('RGB')
-        img_np = np.array(img)
-        
-        # 应用变换
-        img_tensor = self.transform(image=img_np)['image']
-        img_tensor = img_tensor.unsqueeze(0).to(self.device)
-        
-        # 预测
-        with torch.no_grad():
-            outputs = self.model(img_tensor)
-            probs = F.softmax(outputs, dim=1)[0]
-            pred_class = torch.argmax(probs).item()
-        print(f"pred_class:{pred_class}")
-        # 返回结果
-        return {
-            'class': '伪造' if pred_class == 1 else '真实',
-            'fake_prob': float(probs[1].item()) * 100,  # 伪造概率
-            'real_prob': float(probs[0].item()) * 100   # 真实概率
-        }
+        try:
+            # 加载并处理图像
+            img = Image.open(image_path).convert('RGB')
+            img_np = np.array(img)
+            
+            # 应用变换
+            img_tensor = self.transform(image=img_np)['image']
+            img_tensor = img_tensor.unsqueeze(0).to(self.device)
+            
+            # 预测
+            with torch.no_grad():
+                outputs = self.model(img_tensor)
+                probs = F.softmax(outputs, dim=1)[0]
+                pred_class = torch.argmax(probs).item()
+            
+            log_info(f"图像预测完成: {image_path}, 预测类别: {pred_class}", self.logger)
+            
+            # 返回结果
+            return {
+                'class': '伪造' if pred_class == 1 else '真实',
+                'fake_prob': float(probs[1].item()) * 100,  # 伪造概率
+                'real_prob': float(probs[0].item()) * 100   # 真实概率
+            }
+        except Exception as e:
+            log_error(f"预测图像 {image_path} 时出错: {str(e)}", self.logger)
+            raise
 
 # 全局预测器实例
 predictor = ImagePredictor()

@@ -126,7 +126,8 @@ def main():
         evaluate_model(eval_args)
     
     elif args.command == 'web':
-        from src.web.app import load_model, app
+        from src.web.app import app
+        from src.prediction.predictor import load_model
         
         # 加载模型
         load_model(args.model_path, args.model_name)
