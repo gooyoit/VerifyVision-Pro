@@ -16,12 +16,9 @@
                     使用深度学习技术帮助您检测图像是否经过篡改或人工合成
                 </p>
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                    <a href="#detect-section" class="btn btn-primary btn-lg px-4 gap-3" id="normalDetectBtn">
+                    <a href="#detect-section" class="btn btn-primary btn-lg px-4 gap-3">
                         <i class="bi bi-image me-2"></i>开始检测
                     </a>
-                    <button class="btn btn-success btn-lg px-4" id="aiDetectBtn">
-                        <i class="bi bi-robot me-2"></i>AI Agent检测
-                    </button>
                     <a href="{{ url_for('about') }}" class="btn btn-outline-secondary btn-lg px-4">
                         <i class="bi bi-info-circle me-2"></i>了解更多
                     </a>
@@ -69,11 +66,11 @@
             </div>
         </div>
         
-        <!-- AI智能检测卡片 -->
-        <div class="card mt-4 d-none" id="aiDetectSection">
+        <!-- AI检测卡片 -->
+        <div class="card mt-4">
             <div class="card-header bg-success text-white">
                 <h2 class="text-center mb-0">
-                    <i class="bi bi-robot me-2"></i>AI Agent检测
+                    <i class="bi bi-robot me-2"></i>AI智能检测
                 </h2>
             </div>
             <div class="card-body">
@@ -313,38 +310,83 @@
         border-style: solid;
     }
     
-    /* 清除原有的ai-response-content样式干扰 */
     .ai-response-content {
-        background-color: #ffffff;
+        background-color: #f8f9fa;
         border-radius: 8px;
         padding: 1rem;
         min-height: 100px;
         max-height: 500px;
         overflow-y: auto;
+        white-space: pre-wrap;
+        font-family: system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
         border: 1px solid #e9ecef;
-        /* 移除可能干扰的样式 */
     }
     
     .ai-response-content.streaming {
         animation: pulse 2s infinite;
     }
     
-    /* 步骤信息样式 */
-    .step-info {
-        font-weight: 500;
-        color: #0d6efd;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        animation: fadeIn 0.3s ease-in;
-        padding: 8px 12px;
-        margin-bottom: 8px;
-        border-left: 3px solid #0d6efd;
+    .step-content {
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+    }
+    
+    .step-header {
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 0.25rem;
+    }
+    
+    .step-content.function-call {
+        background-color: rgba(0, 123, 255, 0.1);
+        border-left: 3px solid #007bff;
+        padding-left: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .step-content.function-result {
+        background-color: rgba(40, 167, 69, 0.1);
+        border-left: 3px solid #28a745;
+        padding-left: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .step-content.ai-analysis {
+        background-color: rgba(108, 117, 125, 0.1);
+        border-left: 3px solid #6c757d;
+        padding-left: 0.5rem;
+        margin: 0.5rem 0;
     }
     
     @keyframes pulse {
         0% { border-color: #28a745; }
         50% { border-color: #20c997; }
         100% { border-color: #28a745; }
+    }
+    
+    #queryInput:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .typing-indicator {
+        display: inline-block;
+        animation: typing 1.4s infinite;
+    }
+    
+    @keyframes typing {
+        0%, 60%, 100% { opacity: 1; }
+        30% { opacity: 0.4; }
+    }
+    
+    /* 新增：步骤信息样式 */
+    .step-info {
+        font-weight: 500;
+        color: #0d6efd;
+        background-color: #f8f9fa !important;
+        border-radius: 8px;
+        animation: fadeIn 0.3s ease-in;
     }
     
     @keyframes fadeIn {
@@ -355,201 +397,217 @@
     #ai-content-area {
         background-color: #ffffff !important;
         border: 1px solid #dee2e6 !important;
-        border-radius: 6px;
-        padding: 16px !important;
         min-height: 100px;
         max-height: 500px;
         overflow-y: auto;
         animation: fadeIn 0.5s ease-in;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
-        font-size: 14px !important;
-        line-height: 1.6 !important;
-        color: #24292e !important;
+        color: #2c3e50 !important;  /* 重置文本颜色为正常黑色 */
     }
     
-    /* 清除所有可能的样式继承 */
-    #ai-content-area * {
-        font-family: inherit;
+    /* Markdown内容样式 */
+    .markdown-content h1, .markdown-content h2, .markdown-content h3, 
+    .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+        color: #2c3e50;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
     }
     
-    /* Markdown基础样式 */
-    #ai-content-area h1 {
-        color: #1a73e8 !important;
-        font-size: 24px !important;
-        font-weight: 600 !important;
-        margin: 0 0 16px 0 !important;
-        padding: 0 0 8px 0 !important;
-        border-bottom: 2px solid #e1e4e8;
+    .markdown-content h1 { 
+        font-size: 1.8rem; 
+        border-bottom: 2px solid #3498db; 
+        padding-bottom: 0.5rem; 
+        color: #2980b9;
+    }
+    .markdown-content h2 { 
+        font-size: 1.6rem; 
+        color: #e74c3c; 
+        border-bottom: 1px solid #ecf0f1;
+        padding-bottom: 0.3rem;
+    }
+    .markdown-content h3 { 
+        font-size: 1.4rem; 
+        color: #27ae60; 
+        margin-top: 2rem;
+    }
+    .markdown-content h4 { 
+        font-size: 1.2rem; 
+        color: #f39c12; 
+        margin-top: 1.8rem;
+        font-weight: 700;
+    }
+    .markdown-content h5 { 
+        font-size: 1.1rem; 
+        color: #9b59b6; 
+        margin-top: 1.5rem;
+    }
+    .markdown-content h6 { 
+        font-size: 1rem; 
+        color: #34495e; 
+        margin-top: 1.2rem;
     }
     
-    #ai-content-area h2 {
-        color: #d73a49 !important;
-        font-size: 20px !important;
-        font-weight: 600 !important;
-        margin: 24px 0 16px 0 !important;
-        padding: 0 !important;
+    /* 特殊处理：标题中的粗体文本 */
+    .markdown-content h1 strong, .markdown-content h2 strong, 
+    .markdown-content h3 strong, .markdown-content h4 strong,
+    .markdown-content h5 strong, .markdown-content h6 strong {
+        color: inherit;
+        font-weight: 800;
+        text-decoration: none;
     }
     
-    #ai-content-area h3 {
-        color: #28a745 !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        margin: 20px 0 12px 0 !important;
-        padding: 0 !important;
+    /* 四级标题特殊样式（对应 #### **标题** 格式）*/
+    .markdown-content h4 {
+        background: linear-gradient(90deg, #fff3cd, #ffffff);
+        border-left: 4px solid #f39c12;
+        padding: 0.8rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 1.5rem 0;
     }
     
-    #ai-content-area h4 {
-        color: #f66a0a !important;
-        font-size: 16px !important;
-        font-weight: 600 !important;
-        margin: 16px 0 12px 0 !important;
-        padding: 8px 12px !important;
-        background-color: #fff3cd;
-        border-left: 4px solid #f66a0a;
-        border-radius: 4px;
+    .markdown-content h4 strong {
+        color: #e67e22;
+        font-size: 1.25rem;
     }
     
-    #ai-content-area h5 {
-        color: #6f42c1 !important;
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        margin: 16px 0 8px 0 !important;
-        padding: 0 !important;
+    .markdown-content p {
+        margin-bottom: 1rem;
+        line-height: 1.7;
+        color: #2c3e50;
     }
     
-    #ai-content-area h6 {
-        color: #586069 !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        margin: 16px 0 8px 0 !important;
-        padding: 0 !important;
+    .markdown-content ul, .markdown-content ol {
+        padding-left: 2rem;
+        margin-bottom: 1rem;
     }
     
-    #ai-content-area p {
-        color: #212529 !important;
-        font-size: 14px !important;
-        font-weight: 400 !important;
-        line-height: 1.6 !important;
-        margin: 0 0 16px 0 !important;
-        padding: 0 !important;
+    .markdown-content li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
     }
     
-    /* 确保所有普通文字都是黑色 */
-    #ai-content-area,
-    #ai-content-area * {
-        color: #212529 !important;
+    /* 列表项中的粗体文本特殊处理 */
+    .markdown-content li strong {
+        color: #c0392b;
+        font-weight: 700;
+        background-color: rgba(231, 76, 60, 0.1);
+        padding: 0.1rem 0.3rem;
+        border-radius: 0.25rem;
     }
     
-    /* 只对特定元素设置颜色 */
-    #ai-content-area h1 {
-        color: #1a73e8 !important;
-        font-size: 24px !important;
-        font-weight: 600 !important;
-        margin: 0 0 16px 0 !important;
-        padding: 0 0 8px 0 !important;
-        border-bottom: 2px solid #e1e4e8;
+    .markdown-content strong {
+        color: #e74c3c;
+        font-weight: 600;
+        background-color: rgba(231, 76, 60, 0.05);
+        padding: 0.1rem 0.2rem;
+        border-radius: 0.2rem;
     }
     
-    #ai-content-area h2 {
-        color: #d73a49 !important;
-        font-size: 20px !important;
-        font-weight: 600 !important;
-        margin: 24px 0 16px 0 !important;
-        padding: 0 !important;
-    }
-    
-    #ai-content-area h3 {
-        color: #28a745 !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        margin: 20px 0 12px 0 !important;
-        padding: 0 !important;
-    }
-    
-    #ai-content-area strong {
-        color: #dc3545 !important;
-        font-weight: 600 !important;
-        background-color: rgba(220, 53, 69, 0.1);
-        padding: 2px 4px;
-        border-radius: 3px;
-    }
-    
-    #ai-content-area em {
-        color: #212529 !important;
-        font-style: italic !important;
-        font-weight: 400 !important;
-    }
-    
-    #ai-content-area ul,
-    #ai-content-area ol {
-        color: #212529 !important;
-        padding-left: 24px !important;
-        margin: 0 0 16px 0 !important;
-    }
-    
-    #ai-content-area li {
-        color: #212529 !important;
-        font-size: 14px !important;
-        font-weight: 400 !important;
-        line-height: 1.6 !important;
-        margin: 4px 0 !important;
-    }
-    
-    #ai-content-area li strong {
-        color: #dc3545 !important;
-        font-weight: 600 !important;
-        background-color: rgba(220, 53, 69, 0.1);
-        padding: 1px 3px;
-        border-radius: 2px;
-    }
-    
-    #ai-content-area code {
-        background-color: rgba(27, 31, 36, 0.05);
-        color: #e83e8c !important;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 12px !important;
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace !important;
-        font-weight: 400 !important;
-    }
-    
-    #ai-content-area pre {
-        background-color: #f6f8fa;
-        border: 1px solid #e1e4e8;
-        border-radius: 6px;
-        padding: 16px;
-        overflow-x: auto;
-        margin: 16px 0;
-    }
-    
-    #ai-content-area pre code {
-        background: none;
-        color: #212529 !important;
-        padding: 0;
-        font-size: 12px !important;
-    }
-    
-    #ai-content-area blockquote {
-        border-left: 4px solid #dfe2e5;
-        background-color: #f8f9fa;
-        padding: 12px 16px;
-        margin: 16px 0;
-        color: #6a737d !important;
+    .markdown-content em {
+        color: #8e44ad;
         font-style: italic;
     }
     
-    #ai-content-area hr {
+    .markdown-content code {
+        background-color: #f8f9fa;
+        color: #e83e8c;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+    
+    .markdown-content pre {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+    
+    .markdown-content pre code {
+        background: none;
+        color: #495057;
+        padding: 0;
+    }
+    
+    .markdown-content blockquote {
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+        padding: 1rem 1.5rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #6c757d;
+    }
+    
+    .markdown-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        background-color: #ffffff;
+    }
+    
+    .markdown-content th, .markdown-content td {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+        text-align: left;
+    }
+    
+    .markdown-content th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .markdown-content tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    
+    .markdown-content hr {
         border: none;
-        border-top: 2px solid #e1e4e8;
-        margin: 24px 0;
-        height: 0;
+        border-top: 3px solid #3498db;
+        margin: 2.5rem 0;
+        background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+        height: 3px;
+        border-radius: 2px;
+    }
+    
+    /* 分隔线后紧跟标题的特殊处理 */
+    .markdown-content hr + h1,
+    .markdown-content hr + h2,
+    .markdown-content hr + h3,
+    .markdown-content hr + h4,
+    .markdown-content hr + h5,
+    .markdown-content hr + h6 {
+        margin-top: 1rem;
+    }
+    
+    /* 增强段落间距和分隔感 */
+    .markdown-content > *:first-child {
+        margin-top: 0;
+    }
+    
+    .markdown-content > *:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* 处理换行符显示 */
+    .markdown-content {
+        white-space: normal;
+    }
+    
+    .markdown-content br {
+        line-height: 1.5;
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
-<!-- 使用本地Markdown解析库 -->
-<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+<!-- 添加Markdown解析库 -->
+<script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
 <script>
     // 配置Markdown解析器
     marked.setOptions({
@@ -562,137 +620,13 @@
         headerIds: false     // 禁用headerIds避免警告
     });
     
-    // 检查marked.js是否已加载
-    function isMarkedLoaded() {
-        return typeof marked !== 'undefined' && typeof marked.parse === 'function';
-    }
-    
-    // 使用本地marked.js库的渲染函数
+    // 自定义渲染函数来处理特殊格式
     function renderMarkdownContent(content) {
-        if (!content || !content.trim()) return '';
-        
-        console.log('=== Markdown渲染调试 ===');
-        console.log('原始内容:', content.substring(0, 300));
-        console.log('Marked库是否已加载:', isMarkedLoaded());
-        
-        if (isMarkedLoaded()) {
-            try {
-                // 使用marked.js解析
-                const result = marked.parse(content);
-                console.log('Marked.js解析成功，结果长度:', result.length);
-                console.log('处理后结果:', result.substring(0, 300));
-                console.log('========================');
-                return result;
-            } catch (error) {
-                console.error('Marked.js解析失败:', error);
-            }
-        }
-        
-        // 备用解析器 - 处理基础markdown格式
-        console.log('使用备用解析器');
-        
-        // 先规范化换行符
-        let result = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        
-        // 按行处理，保持结构
-        const lines = result.split('\n');
-        const processedLines = [];
-        
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            
-            // 处理标题
-            if (/^#{1,6}\s/.test(line)) {
-                const level = line.match(/^#{1,6}/)[0].length;
-                const text = line.replace(/^#{1,6}\s*/, '');
-                processedLines.push(`<h${level}>${text}</h${level}>`);
-            }
-            // 处理分隔符
-            else if (/^---+$/.test(line.trim())) {
-                processedLines.push('<hr>');
-            }
-            // 处理普通行
-            else {
-                // 处理行内markdown
-                let processedLine = line
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // 粗体
-                    .replace(/\*([^*]+)\*/g, '<em>$1</em>')           // 斜体
-                    .replace(/`([^`]+)`/g, '<code>$1</code>');        // 行内代码
-                
-                processedLines.push(processedLine);
-            }
-        }
-        
-        // 合并处理后的行，并处理段落
-        result = processedLines.join('\n');
-        
-        // 将连续的非HTML行合并为段落
-        result = result.replace(/^(?!<[a-zA-Z])(.*?)(?=\n(?:<[a-zA-Z]|$))/gm, function(match) {
-            // 如果不是空行，包装为段落
-            if (match.trim()) {
-                return `<p>${match}</p>`;
-            }
-            return match;
-        });
-        
-        // 清理多余的空行和修复格式
-        result = result
-            .replace(/\n+/g, '\n')  // 减少多余换行
-            .replace(/<\/p>\n<p>/g, '</p><p>')  // 合并相邻段落
-            .trim();
-        
-        console.log('备用解析器结果:', result.substring(0, 300));
-        console.log('========================');
-        return result;
+        // 简化处理，只做基本的Markdown解析
+        return marked.parse(content);
     }
     
     document.addEventListener('DOMContentLoaded', function() {
-        // 卡片切换功能
-        const normalDetectBtn = document.getElementById('normalDetectBtn');
-        const aiDetectBtn = document.getElementById('aiDetectBtn');
-        const detectSection = document.getElementById('detect-section');
-        const aiDetectSection = document.getElementById('aiDetectSection');
-        
-        // 点击开始检测按钮 - 显示普通检测，隐藏AI检测
-        if (normalDetectBtn) {
-            normalDetectBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // 显示普通检测卡片，隐藏AI检测卡片
-                if (detectSection) {
-                    detectSection.classList.remove('d-none');
-                }
-                if (aiDetectSection) {
-                    aiDetectSection.classList.add('d-none');
-                }
-                
-                // 滚动到检测区域
-                setTimeout(() => {
-                    detectSection.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-            });
-        }
-        
-        // 点击AI Agent检测按钮 - 显示AI检测，隐藏普通检测
-        if (aiDetectBtn) {
-            aiDetectBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // 显示AI检测卡片，隐藏普通检测卡片
-                if (aiDetectSection) {
-                    aiDetectSection.classList.remove('d-none');
-                }
-                if (detectSection) {
-                    detectSection.classList.add('d-none');
-                }
-                
-                // 滚动到AI检测区域
-                setTimeout(() => {
-                    aiDetectSection.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-            });
-        }
-        
         // 拖放功能
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('file');
@@ -753,6 +687,13 @@
         const aiUploadArea = document.getElementById('aiUploadArea');
         const aiFileInput = document.getElementById('aiFile');
         const aiImagePreviewContainer = document.getElementById('aiImagePreviewContainer');
+        const aiDetectionForm = document.getElementById('aiDetectionForm');
+        const aiResponseContainer = document.getElementById('aiResponseContainer');
+        const aiResponseContent = document.getElementById('aiResponseContent');
+        const aiResponseStatus = document.getElementById('aiResponseStatus');
+        const aiDetectionBtn = document.getElementById('aiDetectionBtn');
+        const aiDetectionBtnText = document.getElementById('aiDetectionBtnText');
+        const aiDetectionSpinner = document.getElementById('aiDetectionSpinner');
         
         if (aiUploadArea && aiFileInput) {
             // AI上传区域拖放功能
@@ -849,21 +790,15 @@
         
         // AI检测表单提交
         if (aiDetectionForm) {
-            console.log('AI检测表单已找到'); // 调试信息
             aiDetectionForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                console.log('表单提交事件触发'); // 调试信息
                 
                 const formData = new FormData(aiDetectionForm);
-                console.log('表单数据:', formData.get('file'), formData.get('query')); // 调试信息
                 
                 if (!formData.get('file') || !formData.get('query').trim()) {
-                    console.log('表单验证失败'); // 调试信息
                     alert('请上传图片并输入问题！');
                     return;
                 }
-                
-                console.log('开始发送请求'); // 调试信息
                 
                 // 显示加载状态
                 aiDetectionBtn.disabled = true;
@@ -879,56 +814,39 @@
                 // 状态管理
                 let currentPhase = 'progress'; // progress -> content
                 let contentBuffer = '';
-                let partialLine = ''; // 用于处理不完整的行
                 
                 try {
-                    console.log('发送fetch请求到/api/ai/predict/stream'); // 调试信息
                     const response = await fetch('/api/ai/predict/stream', {
                         method: 'POST',
                         body: formData
                     });
                     
-                    console.log('收到响应:', response.status, response.ok); // 调试信息
-                    
                     if (!response.ok) {
-                        throw new Error('网络请求失败：' + response.status);
+                        throw new Error('网络请求失败');
                     }
                     
-                    console.log('开始读取流式响应'); // 调试信息
                     const reader = response.body.getReader();
                     const decoder = new TextDecoder();
                     
                     while (true) {
                         const { done, value } = await reader.read();
-                        console.log('读取chunk:', done, value ? value.length : 0); // 调试信息
                         if (done) break;
                         
                         const chunk = decoder.decode(value, { stream: true });
-                        console.log('解码后的chunk内容:', JSON.stringify(chunk)); // 调试信息
-                        
-                        // 将新的chunk与之前的不完整行合并
-                        const fullData = partialLine + chunk;
-                        const lines = fullData.split('\n\n'); // 使用双换行符分割
-                        console.log('分割后的行数:', lines.length, '行内容:', lines); // 调试信息
-                        
-                        // 保存最后一行（可能不完整）
-                        partialLine = lines.pop() || '';
+                        const lines = chunk.split('\n');
                         
                         for (const line of lines) {
                             if (line.startsWith('data: ')) {
                                 const data = line.slice(6);
-                                console.log('接收到数据:', data); // 调试信息
                                 
                                 if (data === '[DONE]') {
                                     // 流结束
-                                    console.log('流结束'); // 调试信息
                                     aiResponseContent.classList.remove('streaming');
                                     aiResponseStatus.innerHTML = '<i class="bi bi-check-circle text-success"></i> 分析完成';
                                     break;
                                 } else if (data.trim()) {
                                     // 检测是否为步骤进度信息
                                     if (data.includes('步骤') && (data.includes('🚀') || data.includes('✅') || data.includes('🤖') || data.includes('📁') || data.includes('🔍') || data.includes('💭'))) {
-                                        console.log('步骤信息:', data); // 调试信息
                                         // 这是步骤信息，直接添加到内容区域
                                         const stepDiv = document.createElement('div');
                                         stepDiv.className = 'step-info mb-2 p-2 bg-light border-start border-primary border-3';
@@ -937,69 +855,42 @@
                                         
                                         // 如果是"步骤5：正在生成AI分析报告"，切换到内容模式
                                         if (data.includes('💭 步骤5：正在生成AI分析报告')) {
-                                            console.log('切换到内容模式'); // 调试信息
                                             currentPhase = 'content';
                                             // 创建内容显示区域
                                             const contentDiv = document.createElement('div');
                                             contentDiv.id = 'ai-content-area';
-                                            contentDiv.className = 'mt-3';
-                                            console.log('创建AI内容区域，元素ID:', contentDiv.id);
+                                            contentDiv.className = 'mt-3 p-3 bg-white border rounded markdown-content';
+                                            contentDiv.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+                                            contentDiv.style.lineHeight = '1.6';
                                             aiResponseContent.appendChild(contentDiv);
                                         }
                                     } else if (data.startsWith('FULL:')) {
-                                        console.log('FULL内容:', data.substring(5)); // 调试信息
                                         // 完整内容替换
                                         const content = data.substring(5); // 移除 'FULL:' 前缀
                                         const contentArea = document.getElementById('ai-content-area');
                                         if (contentArea) {
                                             contentBuffer = content;
-                                            const renderedHtml = renderMarkdownContent(contentBuffer);
-                                            console.log('渲染后的HTML:', renderedHtml.substring(0, 200));
-                                            contentArea.innerHTML = renderedHtml;
-                                        } else {
-                                            console.error('找不到ai-content-area元素');
+                                            contentArea.innerHTML = renderMarkdownContent(contentBuffer);
                                         }
                                     } else if (data.startsWith('INCREMENT:')) {
-                                        console.log('INCREMENT内容:', data.substring(10)); // 调试信息
                                         // 增量内容追加
                                         const newContent = data.substring(10); // 移除 'INCREMENT:' 前缀
                                         const contentArea = document.getElementById('ai-content-area');
                                         if (contentArea) {
                                             contentBuffer += newContent;
-                                            const renderedHtml = renderMarkdownContent(contentBuffer);
-                                            contentArea.innerHTML = renderedHtml;
-                                        } else {
-                                            console.error('找不到ai-content-area元素');
+                                            contentArea.innerHTML = renderMarkdownContent(contentBuffer);
                                         }
                                     } else if (currentPhase === 'content') {
-                                        console.log('普通内容:', data, '当前阶段:', currentPhase); // 调试信息
                                         // 兼容旧格式：这是AI分析内容，追加到内容区域
                                         const contentArea = document.getElementById('ai-content-area');
                                         if (contentArea) {
                                             contentBuffer += data;
-                                            const renderedHtml = renderMarkdownContent(contentBuffer);
-                                            contentArea.innerHTML = renderedHtml;
-                                        } else {
-                                            console.log('找不到ai-content-area元素，当前contentBuffer:', contentBuffer.substring(0, 100)); // 调试信息
+                                            contentArea.innerHTML = renderMarkdownContent(contentBuffer);
                                         }
                                     }
                                     
                                     // 自动滚动到底部
                                     aiResponseContent.scrollTop = aiResponseContent.scrollHeight;
-                                }
-                            }
-                        }
-                    }
-                    
-                    // 处理最后可能剩余的不完整行
-                    if (partialLine.startsWith('data: ')) {
-                        const data = partialLine.slice(6);
-                        if (data.trim() && data !== '[DONE]') {
-                            if (currentPhase === 'content') {
-                                const contentArea = document.getElementById('ai-content-area');
-                                if (contentArea) {
-                                    contentBuffer += data;
-                                    contentArea.innerHTML = renderMarkdownContent(contentBuffer);
                                 }
                             }
                         }
