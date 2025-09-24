@@ -374,55 +374,102 @@
     
     /* Markdown基础样式 */
     #ai-content-area h1 {
-        color: #1a73e8 !important;
+        color: inherit !important;
         font-size: 24px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important; /* 确保标题不加粗 */
         margin: 0 0 16px 0 !important;
         padding: 0 0 8px 0 !important;
         border-bottom: 2px solid #e1e4e8;
     }
     
     #ai-content-area h2 {
-        color: #d73a49 !important;
+        color: inherit !important;
         font-size: 20px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important; /* 确保标题不加粗 */
         margin: 24px 0 16px 0 !important;
         padding: 0 !important;
     }
     
     #ai-content-area h3 {
-        color: #28a745 !important;
+        color: inherit !important;
         font-size: 18px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important; /* 确保标题不加粗 */
         margin: 20px 0 12px 0 !important;
         padding: 0 !important;
     }
     
     #ai-content-area h4 {
-        color: #f66a0a !important;
+        color: inherit !important;
         font-size: 16px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important; /* 确保标题不加粗 */
         margin: 16px 0 12px 0 !important;
-        padding: 8px 12px !important;
-        background-color: #fff3cd;
-        border-left: 4px solid #f66a0a;
-        border-radius: 4px;
+        padding: 0 !important;
     }
     
     #ai-content-area h5 {
-        color: #6f42c1 !important;
+        color: inherit !important;
         font-size: 14px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important; /* 确保标题不加粗 */
         margin: 16px 0 8px 0 !important;
         padding: 0 !important;
     }
     
     #ai-content-area h6 {
-        color: #586069 !important;
+        color: inherit !important;
         font-size: 13px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important; /* 确保标题不加粗 */
         margin: 16px 0 8px 0 !important;
         padding: 0 !important;
+    }
+    
+    /* 统一再次声明，防止其他层叠样式影响（如 UA/Bootstrap） */
+    #ai-content-area h1,
+    #ai-content-area h2,
+    #ai-content-area h3,
+    #ai-content-area h4,
+    #ai-content-area h5,
+    #ai-content-area h6 {
+        font-weight: 400 !important;
+        font-style: normal !important;
+    }
+
+    /* 提升优先级：标题内所有子元素也保持非粗体，只有 strong 例外 */
+    #ai-content-area h1 *,
+    #ai-content-area h2 *,
+    #ai-content-area h3 *,
+    #ai-content-area h4 *,
+    #ai-content-area h5 *,
+    #ai-content-area h6 * {
+        font-weight: 400 !important;
+    }
+
+    /* 只有 strong 加粗且为红色 */
+    #ai-content-area h1 strong,
+    #ai-content-area h2 strong,
+    #ai-content-area h3 strong,
+    #ai-content-area h4 strong,
+    #ai-content-area h5 strong,
+    #ai-content-area h6 strong,
+    #ai-content-area strong {
+        color: #dc3545 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* 防止 <b> 影响：统一不加粗，仅 strong 加粗 */
+    #ai-content-area b {
+        font-weight: 400 !important;
+        color: inherit !important;
+    }
+    
+    /* 仅 strong 需要加粗且为红色（包括标题里的 strong） */
+    #ai-content-area h1 strong,
+    #ai-content-area h2 strong,
+    #ai-content-area h3 strong,
+    #ai-content-area h4 strong,
+    #ai-content-area h5 strong,
+    #ai-content-area h6 strong {
+        color: #dc3545 !important;
+        font-weight: 700 !important;
     }
     
     #ai-content-area p {
@@ -434,15 +481,15 @@
         padding: 0 !important;
     }
     
-    /* 确保所有普通文字都是黑色 */
+    /* 普通文字颜色：跟随容器，避免强制绿色或其他颜色 */
     #ai-content-area,
     #ai-content-area * {
-        color: #212529 !important;
+        color: inherit !important;
     }
     
     /* 只对特定元素设置颜色 */
     #ai-content-area h1 {
-        color: #1a73e8 !important;
+        color: inherit !important;
         font-size: 24px !important;
         font-weight: 600 !important;
         margin: 0 0 16px 0 !important;
@@ -451,7 +498,7 @@
     }
     
     #ai-content-area h2 {
-        color: #d73a49 !important;
+        color: inherit !important;
         font-size: 20px !important;
         font-weight: 600 !important;
         margin: 24px 0 16px 0 !important;
@@ -459,7 +506,7 @@
     }
     
     #ai-content-area h3 {
-        color: #28a745 !important;
+        color: inherit !important;
         font-size: 18px !important;
         font-weight: 600 !important;
         margin: 20px 0 12px 0 !important;
@@ -468,27 +515,27 @@
     
     #ai-content-area strong {
         color: #dc3545 !important;
-        font-weight: 600 !important;
-        background-color: rgba(220, 53, 69, 0.1);
-        padding: 2px 4px;
-        border-radius: 3px;
+        font-weight: 700 !important;
+        background: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
     }
     
     #ai-content-area em {
-        color: #212529 !important;
+        color: inherit !important;
         font-style: italic !important;
         font-weight: 400 !important;
     }
     
     #ai-content-area ul,
     #ai-content-area ol {
-        color: #212529 !important;
+        color: inherit !important;
         padding-left: 24px !important;
         margin: 0 0 16px 0 !important;
     }
     
     #ai-content-area li {
-        color: #212529 !important;
+        color: inherit !important;
         font-size: 14px !important;
         font-weight: 400 !important;
         line-height: 1.6 !important;
@@ -497,10 +544,10 @@
     
     #ai-content-area li strong {
         color: #dc3545 !important;
-        font-weight: 600 !important;
-        background-color: rgba(220, 53, 69, 0.1);
-        padding: 1px 3px;
-        border-radius: 2px;
+        font-weight: 700 !important;
+        background: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
     }
     
     #ai-content-area code {
@@ -566,21 +613,60 @@
     function isMarkedLoaded() {
         return typeof marked !== 'undefined' && typeof marked.parse === 'function';
     }
+
+    // 智能拼接：默认直接拼接；仅在关键 Markdown 边界上补必要换行
+    function appendMarkdownSmart(buffer, addition) {
+        const b = buffer || '';
+        const a = addition || '';
+        if (!b) return a;
+        if (!a) return b;
+        // 分隔线后紧跟标题时，补双换行
+        if (/---\s*$/.test(b) && /^\s*#{1,6}\s/.test(a)) {
+            return b.replace(/\s*$/, '') + '\n\n' + a.replace(/^\s*/, '');
+        }
+        // 当下一个块是块级 Markdown 起始而前一个不以换行结尾时，补单换行
+        const startsBlock = /^(\s*(#{1,6}\s|[-*+]\s|\d+\.\s|```|>|\|))/.test(a);
+        if (!b.endsWith('\n') && startsBlock) {
+            return b + '\n' + a;
+        }
+        return b + a;
+    }
     
     // 使用本地marked.js库的渲染函数
     function renderMarkdownContent(content) {
         if (!content || !content.trim()) return '';
         
         console.log('=== Markdown渲染调试 ===');
-        console.log('原始内容:', content.substring(0, 300));
+        console.log('原始内容:', content);
         console.log('Marked库是否已加载:', isMarkedLoaded());
+        
+        // 预处理：规范 Markdown，避免 '---####' 等紧贴导致解析异常
+        function normalizeMarkdown(src) {
+            if (!src) return '';
+            let text = src.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            // 1) 修复任意位置的 --- 紧跟 ####：在 --- 前后强制断成分隔线
+            text = text.replace(/\s*---+\s*(?=\s*#{1,6}\s)/g, '\n\n---\n\n');
+            // 2) 若非换行后紧跟标题，则在标题前补双换行（避免内联标题粘连）
+            text = text.replace(/([^\n])\s*(?=#{1,6}\s)/g, '$1\n\n');
+            return text;
+        }
+        
+        content = normalizeMarkdown(content);
         
         if (isMarkedLoaded()) {
             try {
                 // 使用marked.js解析
-                const result = marked.parse(content);
+                let result = marked.parse(content);
+                // 标题去粗体（兜底内联）：防止 UA/第三方样式覆盖
+                result = result.replace(/<h([1-6])(\b[^>]*)>/g, '<h$1$2 style="font-weight:400 !important;">');
+                // 先移除空标题（含属性版和无属性版）
+                result = result.replace(/<h([1-6])(?:[^>]*)>\s*<\/h\1>/g, '');
+                // 将所有标题替换为段落，保留内部 strong 等语义
+                result = result.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/g, '<p>$2<\/p>');
+                // 移除空段落
+                result = result.replace(/<p>\s*<\/p>/g, '');
                 console.log('Marked.js解析成功，结果长度:', result.length);
-                console.log('处理后结果:', result.substring(0, 300));
+                console.log('处理后结果:', result);
                 console.log('========================');
                 return result;
             } catch (error) {
@@ -641,7 +727,7 @@
             .replace(/<\/p>\n<p>/g, '</p><p>')  // 合并相邻段落
             .trim();
         
-        console.log('备用解析器结果:', result.substring(0, 300));
+        console.log('备用解析器结果:', result);
         console.log('========================');
         return result;
     }
@@ -954,7 +1040,7 @@
                                         if (contentArea) {
                                             contentBuffer = content;
                                             const renderedHtml = renderMarkdownContent(contentBuffer);
-                                            console.log('渲染后的HTML:', renderedHtml.substring(0, 200));
+                                            console.log('渲染后的HTML:', renderedHtml);
                                             contentArea.innerHTML = renderedHtml;
                                         } else {
                                             console.error('找不到ai-content-area元素');
@@ -965,7 +1051,7 @@
                                         const newContent = data.substring(10); // 移除 'INCREMENT:' 前缀
                                         const contentArea = document.getElementById('ai-content-area');
                                         if (contentArea) {
-                                            contentBuffer += newContent;
+                                            contentBuffer = appendMarkdownSmart(contentBuffer, newContent);
                                             const renderedHtml = renderMarkdownContent(contentBuffer);
                                             contentArea.innerHTML = renderedHtml;
                                         } else {
@@ -976,11 +1062,11 @@
                                         // 兼容旧格式：这是AI分析内容，追加到内容区域
                                         const contentArea = document.getElementById('ai-content-area');
                                         if (contentArea) {
-                                            contentBuffer += data;
+                                            contentBuffer = appendMarkdownSmart(contentBuffer, data);
                                             const renderedHtml = renderMarkdownContent(contentBuffer);
                                             contentArea.innerHTML = renderedHtml;
                                         } else {
-                                            console.log('找不到ai-content-area元素，当前contentBuffer:', contentBuffer.substring(0, 100)); // 调试信息
+                                            console.log('找不到ai-content-area元素，当前contentBuffer:', contentBuffer); // 调试信息
                                         }
                                     }
                                     
@@ -998,7 +1084,7 @@
                             if (currentPhase === 'content') {
                                 const contentArea = document.getElementById('ai-content-area');
                                 if (contentArea) {
-                                    contentBuffer += data;
+                                    contentBuffer = appendMarkdownSmart(contentBuffer, data);
                                     contentArea.innerHTML = renderMarkdownContent(contentBuffer);
                                 }
                             }
